@@ -1,0 +1,23 @@
+{
+  "name": "elib",
+  "version": "1.0.0",
+  "description": "ebook api project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "apis",
+    "backend",
+    "express",
+    "ebook"
+  ],
+  "author": "Gourav <gouravmalviya445@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
+  }
+}
