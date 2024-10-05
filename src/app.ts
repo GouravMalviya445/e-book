@@ -4,6 +4,9 @@ import { userRouter } from './user/userRouter';
 
 const app = express();
 
+// globle middleware
+app.use(express.json());
+
 // all routes
 app.use("/api/users", userRouter);
 
