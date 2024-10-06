@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import createHttpError from 'http-errors';
 import { User } from './userModels';
+import jwt from "jsonwebtoken";
+import { config } from '../config/config';
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
     const { name, email, password } = req.body;
@@ -12,18 +14,40 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     // database call see if the user is already exist
-    const user = await User.findOne({ email });
-    if (user) {
-        const error = createHttpError(400, "User already exist with this email");
-        return next(error);
+    try {
+        const user = await User.findOne({ email });
+        if (user) {
+            const error = createHttpError(400, "User already exist with this email");
+            return next(error);
+        }
+        
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+        return next(createHttpError(500, "Error white getting the user"));
     }
 
-    // process
-    // response
+    try {
+        // process
+        const newUser = await User.create({ name, email, password });
 
-    res.status(200).json({
-        message: "user created",
-    })
+        try {
+            // token generation
+            const token = jwt.sign({ sub: newUser._id, }, config.jwtPrivateKey as string, { expiresIn: config.jwtExpiry });
+
+            // response
+            res.status(200).json({
+                accessToken: token
+            });
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (err) {
+            return next(createHttpError(500, "Error while generating the jwt token"));
+        }        
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+        return next(createHttpError(500, "Error while creating the user"));
+    }
+
 }
 
 export { createUser };
