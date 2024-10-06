@@ -3,6 +3,7 @@ import createHttpError from 'http-errors';
 import { User } from './userModels';
 import jwt from "jsonwebtoken";
 import { config } from '../config/config';
+import bcrypt from 'bcrypt';
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
     const { name, email, password } = req.body;
@@ -27,15 +28,17 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
         // process
-        const newUser = await User.create({ name, email, password });
+        const newUser = await User.create({ name, email, password: hashedPassword });
 
         try {
             // token generation
             const token = jwt.sign({ sub: newUser._id, }, config.jwtPrivateKey as string, { expiresIn: config.jwtExpiry });
 
             // response
-            res.status(200).json({
+            res.status(201).json({
                 accessToken: token
             });
 
@@ -50,4 +53,6 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
 
 }
 
-export { createUser };
+export {
+    createUser,
+};
