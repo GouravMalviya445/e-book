@@ -28,10 +28,9 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
         
         // process
-        const newUser = await User.create({ name, email, password: hashedPassword });
+        const newUser = await User.create({ name, email, password });
 
         try {
             // token generation
@@ -53,6 +52,45 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
 
 }
 
+const loginUser = async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body;
+
+    // validation 
+    if (!email || !password) {
+        return next(createHttpError(400, "All fields are required"));
+    }
+    
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return next(createHttpError(404, "User not found"));
+        }
+
+        // match the password
+        const isMatched = await bcrypt.compare(password, user.password);
+        if (!isMatched) {
+            return next(createHttpError(400, "Incorrect username or password"));
+        }
+
+        try {
+            // create access token
+            const token = jwt.sign({ sub: user._id }, config.accessTokenKey as string, { expiresIn: config.accessTokenExpiry });
+            
+            res.status(200).json({accessToken: token});
+        
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (error) {
+            return next(createHttpError(500, "Error while generating access token"));
+        }
+        
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+        return next(createHttpError(500, "Error while finding the user"));
+    }
+        
+}
+
 export {
     createUser,
+    loginUser
 };
