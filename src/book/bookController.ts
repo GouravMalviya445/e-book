@@ -10,7 +10,11 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
 
     const { title, genre } = req.body;
 
-    // console.log("Files: ", req.files);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    console.log("userId: ", req.userId);
+    
+    // console.log("Files: ", req   .files);
 
     // Type for multer
     const files = req.files as { [filename: string]: Express.Multer.File[] };
