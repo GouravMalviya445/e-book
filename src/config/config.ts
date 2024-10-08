@@ -13,6 +13,11 @@ const _config = {
     jwtExpiry: process.env.JWT_EXPIRY,
     accessTokenKey: process.env.ACCESS_TOKEN_KEY,
     accessTokenExpiry: process.env.ACCESS_TOKEN_EXPIRY,
+
+    cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+    cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
+    cloudinaryUrl: process.env.CLOUDINARY_URL
 }
 
 export const config = Object.freeze(_config);
