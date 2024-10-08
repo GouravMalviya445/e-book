@@ -4,16 +4,13 @@ import path from "node:path";
 import createHttpError from "http-errors";
 import { Book } from "./bookModel";
 import fs from "node:fs";
+import { IAuthRequest } from "../middlewares/authenticate";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const createBook = async (req: Request, res: Response, next: NextFunction) => {
 
     const { title, genre } = req.body;
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    console.log("userId: ", req.userId);
-    
     // console.log("Files: ", req   .files);
 
     // Type for multer
@@ -47,11 +44,12 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
         console.log("Cover Image upload result",coverImageUpload);
         console.log("Book upload result", bookUpload);
         
+        const _req = req as IAuthRequest;
         try {
             const newBook = await Book.create({
                 title,
                 genre,
-                authorName: "670437ce9db659e74328fd2e",
+                authorName: _req.userId,
                 coverImage: coverImageUpload.secure_url,
                 file: bookUpload.secure_url
             });
