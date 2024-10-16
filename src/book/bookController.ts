@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response, NextFunction } from "express";
 import cloudinary from "../config/clooudinary";
 import path from "node:path";
@@ -7,6 +6,7 @@ import { Book } from "./bookModel";
 import fs from "node:fs";
 import { IAuthRequest } from "../middlewares/authenticate";
 
+// create Book endpoint
 const createBook = async (req: Request, res: Response, next: NextFunction) => {
 
     const { title, genre } = req.body;
@@ -80,6 +80,7 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
+// update book endpoint
 const updateBook = async (req: Request, res: Response, next: NextFunction) => { 
 
     const { title, genre } = req.body;
@@ -178,6 +179,7 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
 
 }
 
+// list all book endpoint
 const listBook = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const books = await Book.find();
@@ -188,8 +190,27 @@ const listBook = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
+// get single book endpoint
+const getBook = async (req: Request, res: Response, next: NextFunction) => { 
+    try {
+        const { bookId } = req.params;
+        if (!bookId) return next(createHttpError(500, "bookId is required"));
+
+        const book = await Book.findById(bookId);
+        
+        if (!book) return next(createHttpError(404, "404 not found!"));
+
+        res.status(200).json(book);
+
+    } catch (error) {
+        console.log("Error in getting a book: ", error);
+        return next(createHttpError(500, "Error while getting the book"));
+    }
+}
+
 export {
     createBook,
     updateBook,
-    listBook
+    listBook,
+    getBook
 };
