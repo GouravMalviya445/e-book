@@ -26,6 +26,6 @@ bookRouter.patch("/:bookId", authenticate, upload.fields([
 
 bookRouter.get("/", listBook);
 
-bookRouter.get("/:bookId", authenticate, getBook);
+bookRouter.get("/:bookId", getBook);
 
 export { bookRouter };
