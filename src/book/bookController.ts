@@ -208,9 +208,54 @@ const getBook = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
+// delete single book
+const deleteBook = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { bookId } = req.params;
+        if (!bookId)
+            return next(createHttpError(500, "bookId is required"));
+
+        const book = await Book.findById(bookId);
+        if (!book) 
+            return next(createHttpError(404, "404 not found!"));
+
+        // check access
+        const _req = req as IAuthRequest;
+        if (book.authorName.toString() !== _req.userId) 
+            return next(createHttpError(401, "you do not have any access to remove others book!"));
+
+        try {
+            // publicId of cloudinary: book-covers/jibg83uvyauwojvjabir
+            const coverFileSplits = book.coverImage.split("/");
+            const coverImagePublicId = `${coverFileSplits.at(-2)}/${coverFileSplits.at(-1)?.split(".").at(0)}`
+
+            const fileSplits = book.file.split("/");
+            const filePublicId = `${fileSplits.at(-2)}/${fileSplits.at(-1)}`;
+
+            await cloudinary.uploader.destroy(coverImagePublicId);
+            await cloudinary.uploader.destroy(filePublicId, {
+                resource_type: "raw"
+            });
+
+        } catch (err) {
+            console.log("Error while destroying the files of cloudinary: ", err);
+            return next(createHttpError(400, "Error while destroying the files"));
+        }
+
+        await Book.deleteOne({ _id: bookId });
+    
+        res.sendStatus(204);
+        
+    } catch (error) {
+        console.log('Error in deleting the book: ', error);
+        return next(createHttpError(500, "Error while deleting the book"));
+    }
+}
+
 export {
     createBook,
     updateBook,
     listBook,
-    getBook
+    getBook,
+    deleteBook
 };
